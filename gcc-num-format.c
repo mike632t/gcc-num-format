@@ -70,7 +70,7 @@
 #define LIMIT          15
 
 #define MIN(a,b)       (((a)<(b))?(a):(b))
-#define MAX(a,b)       (((a)>(b))?(a):(b)) */
+#define MAX(a,b)       (((a)>(b))?(a):(b))
 
 #include <stdio.h>     /* fprintf(), etc. */
 #include <math.h>      /* log10(), etc. */
