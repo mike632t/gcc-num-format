@@ -54,7 +54,8 @@ clean:
 #
 #  make verify - Rebuilds source and checks output against known good output
 #  in ./$(PROGRAM).t
-verify:
+verify: test
+test:
 #	@echo '*** Compiling $(SOURCE)'
 	@$(CC) $(FLAGS) -c $(SOURCE)
 #	@echo '*** Linking $(OBJECT)'

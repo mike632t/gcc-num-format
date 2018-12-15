@@ -23,16 +23,50 @@
  * 17 Aug 13         - Initial version - MEJT
  * 18 Aug 13         - Added warning macro, changed format of messages to
  *                     indecate the type of message - MEJT
+ * 14 Dec 18         - Added  a macro to allow optional blocks of code to be
+ *                     included if DEBUG is defined - MEJT
+ *                   - Added  operating system dependent definitions here as
+ *                     this file is included in all modules - MEJT
+ *                   - Added a macro to handle (fatal) errors - MEJT
+ *                   - Updated message formats - MEJT
  *
  */
+ 
+#ifndef linux
+   #define linux /* Override operating system - if necessary */
+#endif
 
 #ifndef debug /* Don't redefine macro if already defined. */
-   #ifdef DEBUG /* Define macro to print debug formatted text on stderr. */
-      #define debug(_fmt, ...) fprintf(stderr, "Debug:   %s line:%d (%s) " _fmt "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+   #ifdef DEBUG
+      #define debug(_fmt, ...) fprintf(stderr,   "Debug   : %s line : %d (%s) : " _fmt "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
    #else/* Define macro to do nothing. */
       #define debug(_fmt, ...)
    #endif
-   #define warning(_fmt, ...) fprintf(stderr, "Warning: %s line:%d (%s) " _fmt "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #endif
 
+#ifndef optional /* Don't redefine macro if already defined. */
+   #ifdef DEBUG /* Define macro to run optional code. */
+      #define optional(code) do {code;} while(0)
+   #else/* Define macro to do nothing. */
+      #define optional(code) {}
+   #endif
+#endif
 
+#ifndef trace /* Don't redefine macro if already defined. */
+   #ifdef DEBUG /* Define macro to print formatted debug text on stderr. */
+   #else/* Define macro to do nothing. */
+      #define trace(_fmt, ...)
+   #endif
+#endif
+
+#ifndef warning /* Don't redefine macro if already defined. */
+   #ifndef RELEASE
+      #define warning(_fmt, ...) fprintf(stderr, "Warning : %s line : %d (%s) : " _fmt "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+   #else/* Define macro to do nothing. */
+      #define warning(_fmt, ...)
+   #endif
+#endif
+
+#ifndef error /* Don't redefine macro if already defined. */
+   #define error(_fmt, ...) fprintf(stderr,   "Error   : %s line : %d (%s) : " _fmt "", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); exit(1)
+#endif
