@@ -28,6 +28,7 @@
 PROGRAM = gcc-num-format
 SOURCE = $(PROGRAM).c
 OBJECT = $(SOURCE:.c=.o)
+OUTPUT = gcc-sci-format.t
 FLAGS	= 
 LIBS	= -lm
 CC	= gcc
@@ -60,6 +61,6 @@ verify:
 	@$(CC) $(OBJECT) -o $(PROGRAM) $(LIBS)
 #	@echo '*** Cleaning up object files'
 	@rm -f $(OBJECT)
-#	@echo '*** Verifying $(PROGRAM) output'
-	@./$(PROGRAM) |$(DIFF) -E -B -y --suppress-common-lines - ./$(PROGRAM).t ; if [ $$? -eq 0 ] ; then echo "Result:  PASSED" ; fi
+#	@echo '*** Verifying $(PROGRAM) output against $(OUTPUT)'
+	@./$(PROGRAM) |$(DIFF) -E -B -y --suppress-common-lines - ./$(OUTPUT) ; if [ $$? -eq 0 ] ; then echo "Result:  PASSED" ; fi
 

@@ -24,7 +24,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * 20 Jul 13   0.1   - Initial version - MEJT
+ * 20 Jul 13   0.1   - Initial version - MEJT 
  * 22 Jul 13         - Fixed the truncation errors that were occouring when
  *                     formatting some fractions by rounding the number 
  *                     before truncating it - MEJT
@@ -61,6 +61,7 @@
  *                     sign and decimal place, changed display of the raw 
  *                     test values to always include a leading sign (to
  *                     workaround formatting issues with VAX C RTL) - MEJT
+ * 25 Aug 13         - Test values now depend on display width - MEJT
  *                      
  * TO DO :           - Test output for different display widths.
  *
@@ -107,11 +108,12 @@ int main(int argc, char *argv[]) {
 
    double d_testcase[] = { 
       0.00, 
-      99.99999999, /* Round up - Value for 10 digit display. */
       1.0e+100, /* Overflow. */
       1.0e-100, /* Underflow. */
-      0.4599999999, /* Intermediate rounding - Value for 10 digit display. */
-      2.0 / -3.0, /* Rounding recurring value. */
+      100 * (1 - pow(10, - WIDTH)), /* Round up. */
+      0.46 - pow(10, - WIDTH), /* Intermediate rounding. */
+      2.0e-08, /* Fraction. */
+      2.0 / -3.0, /* Recurring decimal value. */
       0.2, /* Recouring binary fraction. */
       (48 - 47.8) - 0.2, 
       123456789.0, 
