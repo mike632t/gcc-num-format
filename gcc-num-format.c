@@ -139,19 +139,23 @@ char* s_format(char* s_string, double d_number, int i_width, int i_precision, in
    i_exponent = 0; i_digits = 1; i_decimals = i_precision;
    i_sign = SIGN(d_number);
 
-   print("%15.12g %2d", d_number, i_mode);
+   print("%15.12g %2d", d_number);
 
    if (ABS(i_sign) > 0) { 
       d_number *= i_sign; /* Make number positive before formatting it and restore the sign at the end! */
       i_exponent = (int) ROUND(floor(log10(d_number))); /* Find exponent. */
       
-      // Do somthing to finfd the number of digits for FIX !!!
-      
-      if (i_mode > 0 || i_exponent > 9) {
-         d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
+      // Do somthing to find the number of digits for FIX !!!
+      d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
+
+      /* Round up the the desired number of decimal places. */
+      d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
+
+      if (i_mode > 0 || (ABS(i_exponent) > (i_width - 1))) {
+         //d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
 
          /* Round up the the desired number of decimal places. */
-         d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
+         //d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
          while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
 
          /* Check for numeric underflow. */
@@ -185,7 +189,7 @@ char* s_format(char* s_string, double d_number, int i_width, int i_precision, in
       }
    }
    
-   if ((i_mode > 0) || i_exponent > 9) { /* SCI or ENG format */
+   if ((i_mode > 0) || (ABS(i_exponent) > (i_width - 1))) { /* SCI or ENG format */
       if (i_digits + i_decimals > i_width - 3){ /* Truncate mantessa if necessary. */
          d_number= TRUNC(d_number * pow(10.0, i_width - 3 - i_digits)) / pow(10.0, i_width - 3 - i_digits); /* Truncate. */
          i_decimals = i_width - 3 - i_digits; /* Adjust number of decimal places. */
