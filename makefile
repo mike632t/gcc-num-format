@@ -18,6 +18,10 @@
 #
 #	Note - Shell commands must start with a tab character at the beginning
 #  of each line NOT spaces..!
+#
+#  Note - To specify a different output file when debugging use:
+#
+#	make test OUTPUT=<file_name> 
 #	
 #	09 Apr 12	0.1	- Initial version derived from gtk-sample-menu - MEJT
 #  17 Aug 13   0.2   - Added make clean and make verify to delete any 
