@@ -51,24 +51,3 @@
 #ifndef ABS /* Don't redefine macro if already defined. */
    #define ABS(x) (((x) < 0) ? -(x) : (x))
 #endif
-
-
-//double d_trunc(double d_number){ 
-   //return (d_number > 0) ? floor(d_number) : ceil(d_number);
-//}
-
-//double d_round(double d_number){ /* Has problems with floating point rounding errors.. */
-   //return (d_number >= 0) ? d_trunc(d_number + 0.5) : d_trunc(d_number - 0.5);
-//}
-
-//int i_sign(double d_number){
-   //return (( d_number > 0 ) - ( d_number < 0 ));
-//}
-
-//int i_min(int i_one, int i_two){
-   //return (i_one < i_two) ? i_one : i_two;
-//}
-
-//int i_max(int i_one, int i_two){
-   //return (i_one >= i_two) ? i_one : i_two;
-//}
