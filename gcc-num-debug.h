@@ -29,6 +29,7 @@
  * 15 Dec 18         - Tidied up debug code (removed duplication) - MEJT
  * 16 Dec 18         - Reworote debug macros to allow debugging to be turned
  *                     on and off as needed by refefining DEBUG - MEJT
+ * 18 Dec 18         - Fixed bug in defination of debug macro - MEJT
  *
  */
 
@@ -38,7 +39,7 @@
 
 /* Execute code if DEBUG is True */
 #ifndef debug /* Don't redefine macro if already defined. */
-   #define debug(code) (do {if(DEBUG){code;}} while(0))
+   #define debug(code) do {if(DEBUG){code;}} while(0)
 #endif
 
 /* Print a message to stderr if DEBUG is True */
