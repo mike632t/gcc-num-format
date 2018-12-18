@@ -1,4 +1,3 @@
-
 /*
  * gcc-num-format.c - Formatting for floating point numbers.
  *
@@ -65,7 +64,7 @@
  *
  */
 
-#define DEBUG 0       /* Can be DEBUG or RELEASE (or somthing else!). */
+#define DEBUG 1       /* Can be DEBUG or RELEASE (or somthing else!). */
 
 #define WIDTH          10
 #define LIMIT          15
@@ -101,32 +100,29 @@ int main(int argc, char *argv[]) {
 
    char s_string[WIDTH + 3]; /* Allowing for the sign, decimal point and terminator. */
    int i_count, i_test;
-
    int i_limit = MIN(sizeof(d_testcase)/sizeof(d_testcase[0]), LIMIT);
-   
-   //i_test = 9;
-   //i_count = 3;
-   
-   //fprintf(stdout, "%-+17.9e\t= %s      \t(SCI %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 0), i_count);
 
-   //debug(return(0));
+   debug(i_test = 11;
+      for (i_test = 0; i_test < i_limit; i_test++) {
+         for (i_count = 0; i_count <= 9; i_count++) {
+            fprintf(stdout, "%-+17.9e\t= %s      \t(FIX %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 0), i_count);
+         }
+         fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_testcase[i_test], s_mant(s_string, d_testcase[i_test], WIDTH));   
+      }
+   return(0));
+
    
    for (i_test = 0; i_test < i_limit; i_test++) {
       
-      /* FIX */
+      /* SCI */
       for (i_count = 0; i_count <= 9; i_count++) {
-         fprintf(stdout, "%-+17.9e\t= %s      \t(FIX %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 0), i_count);
+         fprintf(stdout, "%-+17.9e\t= %s      \t(SCI %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 1), i_count);
       }
-
-      ///* SCI */
-      //for (i_count = 0; i_count <= 9; i_count++) {
-         //fprintf(stdout, "%-+17.9e\t= %s      \t(SCI %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 1), i_count);
-      //}
       
-      ///* ENG */
-      //for (i_count = 0; i_count <= 9; i_count++) {
-         //fprintf(stdout, "%-+17.9e\t= %s      \t(ENG %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 2), i_count);
-      //}
+      /* ENG */
+      for (i_count = 0; i_count <= 9; i_count++) {
+         fprintf(stdout, "%-+17.9e\t= %s      \t(ENG %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 2), i_count);
+      }
 
       fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_testcase[i_test], s_mant(s_string, d_testcase[i_test], WIDTH));   
    }
@@ -134,28 +130,24 @@ int main(int argc, char *argv[]) {
 } 
 
 char* s_format(char* s_string, double d_number, int i_width, int i_precision, int i_mode) {
+   
+   #undef DEBUG /* Disable debug code */
+   #define DEBUG 0
+   
    int i_sign, i_exponent, i_decimals, i_digits;
    char c_sign = ' ';
    i_exponent = 0; i_digits = 1; i_decimals = i_precision;
    i_sign = SIGN(d_number);
 
-   print("%15.12g %2d", d_number);
-
    if (ABS(i_sign) > 0) { 
       d_number *= i_sign; /* Make number positive before formatting it and restore the sign at the end! */
       i_exponent = (int) ROUND(floor(log10(d_number))); /* Find exponent. */
       
-      // Do somthing to find the number of digits for FIX !!!
-      d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
-
-      /* Round up the the desired number of decimal places. */
-      d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
-
-      if (i_mode > 0 || (ABS(i_exponent) > (i_width - 1))) {
-         //d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
+      if (i_mode > 0 || (ABS(i_exponent) > (i_decimals))) {
+         d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
 
          /* Round up the the desired number of decimal places. */
-         //d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
+         d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
          while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
 
          /* Check for numeric underflow. */
@@ -184,9 +176,13 @@ char* s_format(char* s_string, double d_number, int i_width, int i_precision, in
             d_number = 9.999999999999999; i_exponent = 99;
             i_decimals = i_width - 1; i_digits = 1; /* Force all decimal places to be shown. */
          }
-
-         d_number *= i_sign; /* Fix up the sign. */
       }
+      else {
+         /* Round up the the desired number of decimal places. */
+         if ((i_decimals + i_exponent) >= i_width) i_decimals = i_width - i_exponent -1;
+         d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
+      }
+      d_number *= i_sign; /* Fix up the sign. */
    }
    
    if ((i_mode > 0) || (ABS(i_exponent) > (i_width - 1))) { /* SCI or ENG format */
@@ -199,8 +195,8 @@ char* s_format(char* s_string, double d_number, int i_width, int i_precision, in
       return s_string;
    }
    else { /* FIX format */
-      if (i_digits + i_decimals > i_width - 1){ /* Truncate mantessa if necessary. */
-         i_decimals = i_width - 1 - i_digits; /* Adjust number of decimal places. */
+      if (i_digits + i_decimals > i_width){ /* Truncate mantessa if necessary. */
+         i_decimals = i_width - i_digits; /* Adjust number of decimal places. */
       }
       sprintf(s_string, "% #*.*f%*c", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - 2 - i_digits - i_decimals, ' '); /* Allowing for the sign and decimal point. */
       return s_string;
