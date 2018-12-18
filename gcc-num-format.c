@@ -83,7 +83,7 @@ char* s_mant(char*, double, int);
 
 int main(int argc, char *argv[]) {
 
-   double d_testcase[] = {
+   const double d_testcase[] = {
       0.00,
       1.0e+100, /* Overflow. */
       1.0e-100, /* Underflow. */
@@ -94,30 +94,33 @@ int main(int argc, char *argv[]) {
       0.2, /* Recouring binary fraction. */
       (48 - 47.8) - 0.2,
       123456789.0,
-      -1.2e-19,
+      -1.2e-19,  // - Checked
+      15,
       2.831068713e4,
-      15};
+      0.002};
 
+   double d_test;
    char s_string[WIDTH + 3]; /* Allowing for the sign, decimal point and terminator. */
    int i_count, i_test;
    int i_limit = MIN(sizeof(d_testcase)/sizeof(d_testcase[0]), LIMIT);
-
-   debug(i_test = 11;
-      for (i_test = 0; i_test < i_limit; i_test++) {
-         for (i_count = 0; i_count <= 9; i_count++) {
-            fprintf(stdout, "%-+17.9e\t= %s      \t(FIX %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 0), i_count);
-         }
-         fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_testcase[i_test], s_mant(s_string, d_testcase[i_test], WIDTH));   
-      }
-   return(0));
-
    
+   i_limit=1;
+  
    for (i_test = 0; i_test < i_limit; i_test++) {
       
+      /* FIX */
+      for (i_count = 0; i_count <= 9; i_count++) {
+         d_test = d_testcase[i_test];
+         fprintf(stdout, "%-+17.9e\t= %s      \t(FIX %d)\n",  d_testcase[i_test], s_format(s_string, d_test, WIDTH, i_count, 0), i_count);
+      }
+      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_testcase[i_test], s_mant(s_string, d_test, WIDTH));   
+
       /* SCI */
       for (i_count = 0; i_count <= 9; i_count++) {
-         fprintf(stdout, "%-+17.9e\t= %s      \t(SCI %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 1), i_count);
+         fprintf(stdout, "%-+17.9e\t= %s      \t(SCI %d)\n",  d_testcase[i_test], s_format(s_string, d_test, WIDTH, i_count, 1), i_count);
       }
+
+      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_testcase[i_test], s_mant(s_string, d_test, WIDTH));   
       
       /* ENG */
       for (i_count = 0; i_count <= 9; i_count++) {
@@ -129,21 +132,25 @@ int main(int argc, char *argv[]) {
    return(0);
 } 
 
-char* s_format(char* s_string, double d_number, int i_width, int i_precision, int i_mode) {
+char* s_format(char* s_string, double d_value, int i_width, int i_precision, int i_mode) {
    
    #undef DEBUG /* Disable debug code */
    #define DEBUG 0
    
+   double d_number = d_value;
    int i_sign, i_exponent, i_decimals, i_digits;
    char c_sign = ' ';
+   
    i_exponent = 0; i_digits = 1; i_decimals = i_precision;
    i_sign = SIGN(d_number);
 
    if (ABS(i_sign) > 0) { 
+
       d_number *= i_sign; /* Make number positive before formatting it and restore the sign at the end! */
       i_exponent = (int) ROUND(floor(log10(d_number))); /* Find exponent. */
-      
-      if (i_mode > 0 || (ABS(i_exponent) > (i_decimals))) {
+
+      if (i_mode > 0 || (ABS(i_exponent) > (i_width)) || ((i_decimals + i_exponent) < 0)) {
+         
          d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
 
          /* Round up the the desired number of decimal places. */
@@ -185,9 +192,9 @@ char* s_format(char* s_string, double d_number, int i_width, int i_precision, in
       d_number *= i_sign; /* Fix up the sign. */
    }
    
-   if ((i_mode > 0) || (ABS(i_exponent) > (i_width - 1))) { /* SCI or ENG format */
+   if (i_mode > 0 || (ABS(i_exponent) > (i_width)) || ((i_decimals + i_exponent) < 0)) { /* SCI or ENG format */
       if (i_digits + i_decimals > i_width - 3){ /* Truncate mantessa if necessary. */
-         d_number= TRUNC(d_number * pow(10.0, i_width - 3 - i_digits)) / pow(10.0, i_width - 3 - i_digits); /* Truncate. */
+         d_number = TRUNC(d_number * pow(10.0, i_width - 3 - i_digits)) / pow(10.0, i_width - 3 - i_digits); /* Truncate. */
          i_decimals = i_width - 3 - i_digits; /* Adjust number of decimal places. */
       }
       if (i_exponent < 0) {c_sign = '-'; i_exponent = -i_exponent;} /* Is exponent negative? */
@@ -203,8 +210,10 @@ char* s_format(char* s_string, double d_number, int i_width, int i_precision, in
    }
 }
 
-char* s_mant(char* s_string, double d_number, int i_width) {
-   int i_exponent;
+char* s_mant(char* s_string, double d_value, int i_width) {
+
+   double d_number = d_value;
+   int i_exponent = 0;
    switch (SIGN(d_number)) {
    case -1:
       d_number = -d_number; /* Change sign of number and fall through. */
