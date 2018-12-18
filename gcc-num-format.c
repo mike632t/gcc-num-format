@@ -102,32 +102,32 @@ int main(int argc, char *argv[]) {
    double d_test;
    char s_string[WIDTH + 3]; /* Allowing for the sign, decimal point and terminator. */
    int i_count, i_test;
+   int i_start = 0;
    int i_limit = MIN(sizeof(d_testcase)/sizeof(d_testcase[0]), LIMIT);
    
-   i_limit=1;
-  
-   for (i_test = 0; i_test < i_limit; i_test++) {
+   for (i_test = i_start; i_test < i_limit; i_test++) {
+      
+      d_test = d_testcase[i_test];
       
       /* FIX */
       for (i_count = 0; i_count <= 9; i_count++) {
-         d_test = d_testcase[i_test];
-         fprintf(stdout, "%-+17.9e\t= %s      \t(FIX %d)\n",  d_testcase[i_test], s_format(s_string, d_test, WIDTH, i_count, 0), i_count);
+         fprintf(stdout, "%-+17.9e\t= %s   \t(FIX %d)\n",  d_test, s_format(s_string, d_test, WIDTH, i_count, 0), i_count);
       }
-      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_testcase[i_test], s_mant(s_string, d_test, WIDTH));   
+      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_test, s_mant(s_string, d_test, WIDTH));   
 
       /* SCI */
       for (i_count = 0; i_count <= 9; i_count++) {
-         fprintf(stdout, "%-+17.9e\t= %s      \t(SCI %d)\n",  d_testcase[i_test], s_format(s_string, d_test, WIDTH, i_count, 1), i_count);
+         fprintf(stdout, "%-+17.9e\t= %s    \t(SCI %d)\n",  d_test, s_format(s_string, d_test, WIDTH, i_count, 1), i_count);
       }
 
-      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_testcase[i_test], s_mant(s_string, d_test, WIDTH));   
+      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_test, s_mant(s_string, d_test, WIDTH));   
       
       /* ENG */
       for (i_count = 0; i_count <= 9; i_count++) {
-         fprintf(stdout, "%-+17.9e\t= %s      \t(ENG %d)\n",  d_testcase[i_test], s_format(s_string, d_testcase[i_test], WIDTH, i_count, 2), i_count);
+         fprintf(stdout, "%-+17.9e\t= %s    \t(ENG %d)\n",  d_test, s_format(s_string, d_test, WIDTH, i_count, 2), i_count);
       }
 
-      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_testcase[i_test], s_mant(s_string, d_testcase[i_test], WIDTH));   
+      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_test, s_mant(s_string, d_test, WIDTH));   
    }
    return(0);
 } 
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 char* s_format(char* s_string, double d_value, int i_width, int i_precision, int i_mode) {
    
    #undef DEBUG /* Disable debug code */
-   #define DEBUG 0
+   #define DEBUG 1
    
    double d_number = d_value;
    int i_sign, i_exponent, i_decimals, i_digits;
@@ -198,19 +198,21 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
          i_decimals = i_width - 3 - i_digits; /* Adjust number of decimal places. */
       }
       if (i_exponent < 0) {c_sign = '-'; i_exponent = -i_exponent;} /* Is exponent negative? */
-      sprintf(s_string, "% #*.*f%*c%02d", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - 2 - i_digits - i_decimals, c_sign, i_exponent); /* Allowing for the sign and decimal point. */
+      sprintf(s_string, "% #*.*f%*c%02d+", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - 2 - i_digits - i_decimals, c_sign, i_exponent); /* Allowing for the sign and decimal point. */
       return s_string;
    }
    else { /* FIX format */
       if (i_digits + i_decimals > i_width){ /* Truncate mantessa if necessary. */
          i_decimals = i_width - i_digits; /* Adjust number of decimal places. */
       }
-      sprintf(s_string, "% #*.*f%*c", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - 2 - i_digits - i_decimals, ' '); /* Allowing for the sign and decimal point. */
+      print("%d %d.%d", i_width, i_digits, i_decimals);
+      //sprintf(s_string, "% #*.*f%*c+", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - 2 - i_digits - i_decimals, ' '); /* Allowing for the sign and decimal point. */
+      sprintf(s_string, "% #*.*f%*c", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - i_digits - i_decimals, '+'); /* Allowing for the sign and decimal point. */
       return s_string;
    }
 }
 
-char* s_mant(char* s_string, double d_value, int i_width) {
+char* s_mant(char* s_string, const double d_value, int i_width) {
 
    double d_number = d_value;
    int i_exponent = 0;
