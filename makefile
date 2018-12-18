@@ -24,11 +24,12 @@
 #                      object files and automatically compare the output
 #                      against that expected - MEJT
 #  18 Aug 13         - Now recompiles sources before verifying output - MEJT
+#  18 Dec 18			- Test data file name based on program name - MEJT
 #
 PROGRAM = gcc-num-format
 SOURCE = $(PROGRAM).c
 OBJECT = $(SOURCE:.c=.o)
-OUTPUT = gcc-sci-format.t
+OUTPUT = $(PROGRAM).t
 FLAGS	= 
 LIBS	= -lm
 CC	= gcc
@@ -36,7 +37,7 @@ DIFF = diff
 #
 $(PROGRAM): $(OBJECT) 
 #	@echo '*** Linking $(OBJECT)'
-	@$(CC) $(OBJECT) -o $(PROGRAM) $(LIBS)
+	@$(CC) $(FLAGS) $(OBJECT) -o $(PROGRAM) $(LIBS)
 #	Tidy up by deleting ALL object files - this will force all the sources
 #  to be recompiled every time so may not be a good idea on slow machines
 #	@echo '*** Deleting object files'
