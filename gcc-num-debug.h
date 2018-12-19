@@ -27,7 +27,7 @@
  *                   - Added a macro to handle (fatal) errors - MEJT
  *                   - Updated message formats - MEJT
  * 15 Dec 18         - Tidied up debug code (removed duplication) - MEJT
- * 16 Dec 18         - Reworote debug macros to allow debugging to be turned
+ * 16 Dec 18         - Rewrote  debug macros to allow debugging to be turned
  *                     on and off as needed by refefining DEBUG - MEJT
  * 18 Dec 18         - Fixed bug in defination of debug macro - MEJT
  *
