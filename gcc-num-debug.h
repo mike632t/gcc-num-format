@@ -30,44 +30,43 @@
  * 16 Dec 18         - Rewrote  debug macros to allow debugging to be turned
  *                     on and off as needed by refefining DEBUG - MEJT
  * 18 Dec 18         - Fixed bug in defination of debug macro - MEJT
+ * 19 Dec 18         - Fixed spelling in comments - MEJT
+ * 20 Dec 18         - Now compiles using VAXC - MEJT
  *
  */
 
-#ifndef linux
-   #define linux /* Override operating system type - if necessary */
-#endif
-
 /* Execute code if DEBUG is True */
 #ifndef debug /* Don't redefine macro if already defined. */
-   #define debug(code) do {if(DEBUG){code;}} while(0)
+#define debug(code) do {if(DEBUG){code;}} while(0)
 #endif
 
+#ifndef vms
 /* Print a message to stderr if DEBUG is True */
-#ifndef print /* Don't redefine macro if already defined. */
-   #define print(_fmt, ...) do { \
-      if(DEBUG){ \
-         fprintf(stderr,   "Debug\t: %s line : %d (%s) : " _fmt "\n", \
+   #ifndef print /* Don't redefine macro if already defined. */
+      #define print(_fmt, ...) do { \
+         if(DEBUG){ \
+            fprintf(stderr,   "Debug\t: %s line : %d (%s) : " _fmt "\n", \
+               __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+         } \
+      } while(0)
+   #endif
+
+   /* Print warning to stderr if DEBUG is True */
+   #ifndef warning /* Don't redefine macro if already defined. */
+      #define warning(_fmt, ...) do { \
+         if(DEBUG){ \
+            fprintf(stderr,   "Warning\t: %s line : %d (%s) : " _fmt "\n", \
+               __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+         } \
+      } while(0)
+   #endif
+
+   /* Print an error message stderr and exit */
+   #ifndef error /* Don't redefine macro if already defined. */
+      #define error(_fmt, ...) do { \
+         fprintf(stderr,   "Error\t: %s line : %d (%s) : " _fmt "\n", \
             __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-      } \
-   } while(0)
+         exit (1); \
+      } while(0)
+   #endif
 #endif
-
-/* Print warning to stderr if DEBUG is True */
-#ifndef warning /* Don't redefine macro if already defined. */
-   #define warning(_fmt, ...) do { \
-      if(DEBUG){ \
-         fprintf(stderr,   "Warning\t: %s line : %d (%s) : " _fmt "\n", \
-            __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-      } \
-   } while(0)
-#endif
-
-/* Print an error message stderr and exit */
-#ifndef error /* Don't redefine macro if already defined. */
-   #define error(_fmt, ...) do { \
-      fprintf(stderr,   "Error\t: %s line : %d (%s) : " _fmt "\n", \
-         __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-      exit (1); \
-   } while(0)
-#endif
-

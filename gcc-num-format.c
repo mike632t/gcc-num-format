@@ -58,21 +58,22 @@
  *                     workaround formatting issues with VAX C RTL) - MEJT
  * 25 Aug 13         - Test values now depend on display width - MEJT
  * 16 Dec 18         - Replaced local math functions with macros - MEJT
+ * 20 Dec 19         - Fixed FIX formatting - MEJT
+ *                   - Now compiles using VAXC - MEJT
  *
- * TO DO :           - Format output using FIX.
- *                   - Test output for different display widths.
+ * TO DO :           - Test output for different display widths.
  *
  */
 
 #define DEBUG 1       /* Can be DEBUG or RELEASE (or somthing else!). */
 
 #define WIDTH          10
-#define LIMIT          15
 
 #define MIN(a,b)       (((a)<(b))?(a):(b))
 #define MAX(a,b)       (((a)>(b))?(a):(b))
 
 #include <stdio.h>     /* fprintf(), etc. */
+#include <stdlib.h>    /* exit() */
 #include <math.h>      /* log10(), etc. */
 
 #include "gcc-num-format.h" /* TRUNC(), etc. */
@@ -94,7 +95,7 @@ int main(int argc, char *argv[]) {
       0.2, /* Recouring binary fraction. */
       (48 - 47.8) - 0.2,
       123456789.0,
-      -1.2e-19,  // - Checked
+      -1.2e-19,
       15,
       2.831068713e4,
       0.002};
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]) {
    char s_string[WIDTH + 3]; /* Allowing for the sign, decimal point and terminator. */
    int i_count, i_test;
    int i_start = 0;
-   int i_limit = MIN(sizeof(d_test)/sizeof(d_test[0]), LIMIT);
+   int i_limit = sizeof(d_test)/sizeof(d_test[0]);
    
    for (i_test = i_start; i_test < i_limit; i_test++) {
       
@@ -126,13 +127,13 @@ int main(int argc, char *argv[]) {
 
       fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_test[i_test], s_mant(s_string, d_test[i_test], WIDTH));   
    }
-   return(0);
+   exit(0);
 } 
 
 char* s_format(char* s_string, double d_value, int i_width, int i_precision, int i_mode) {
-   
-   #undef DEBUG /* Disable debug code */
-   #define DEBUG 1
+
+#undef DEBUG /* Disable debug code */
+#define DEBUG 0
    
    double d_number = d_value;
    int i_sign, i_exponent, i_decimals, i_digits;
@@ -155,7 +156,8 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
 
          /* Check for numeric underflow. */
          if (i_exponent + (int) ROUND(floor(log10(d_number))) < -99) {
-            warning("Warning: Underflow   (%- fe%+-2d)", d_number * i_sign, i_exponent);
+            debug(fprintf(stderr, "Debug\t: %s line : %d : Warning: Underflow   (%- fe%+-2d)\n",
+              __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 0.0; i_exponent = 0; i_sign = 0;
          }
 
@@ -175,16 +177,18 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
          /* Check for numeric overflow. */
          if (i_exponent + (int) ROUND(floor(log10(d_number))) > 99) {
             while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
-            warning("Warning: Overflow    (%- fe%+-2d)", d_number * i_sign, i_exponent);
+            debug(fprintf(stderr, "Debug\t: %s line : %d : Warning: Overflow   (%- fe%+-2d)\n",
+              __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 9.999999999999999; i_exponent = 99;
             i_decimals = i_width - 1; i_digits = 1; /* Force all decimal places to be shown. */
          }
       }
       else {
          /* Round up the the desired number of decimal places. */
-         if (i_exponent > 0) i_digits += i_exponent;
          if ((i_decimals + i_exponent) >= i_width) i_decimals = i_width - i_exponent -1;
          d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
+         i_exponent = (int) ROUND(floor(log10(d_number))); /* Find exponent again - it may have changed when the number was rounded up. */
+         if (i_exponent > 0) i_digits += i_exponent;
       }
       d_number *= i_sign; /* Fix up the sign. */
    }
@@ -195,16 +199,12 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
          i_decimals = i_width - 3 - i_digits; /* Adjust number of decimal places. */
       }
       if (i_exponent < 0) {c_sign = '-'; i_exponent = -i_exponent;} /* Is exponent negative? */
-      sprintf(s_string, "% #*.*f%*c%02d +", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - 2 - i_digits - i_decimals, c_sign, i_exponent); /* Allowing for the sign and decimal point. */
+      sprintf(s_string, "% #*.*f%*c%02d%c", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - 2 - i_digits - i_decimals, c_sign, i_exponent,' '); /* Allowing for the sign and decimal point. */
       return s_string;
    }
    else { /* FIX format */
-      if (i_digits + i_decimals > i_width){ /* Truncate mantessa if necessary. */
-         i_decimals = i_width - i_digits; /* Adjust number of decimal places. */
-      }
-      //print("%d %d.%d %d", i_width, i_digits, i_decimals, i_width - (i_digits + i_decimals)); /** TODO : Number of DIGITS is wrong !! **/
-      //sprintf(s_string, "% #*.*f%*c+", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - 2 - i_digits - i_decimals, ' '); /* Allowing for the sign and decimal point. */
-      sprintf(s_string, "% #*.*f%*c+", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - (i_digits + i_decimals) + 1, ' '); /* Allowing for the sign and decimal point. */
+      if (i_digits + i_decimals > i_width) i_decimals = i_width - i_digits; /* Truncate mantessa if necessary. */
+      sprintf(s_string, "% #*.*f%*c", i_digits + i_decimals + 2,  i_decimals, d_number, i_width - (i_digits + i_decimals) + 1, ' '); /* Allowing for the sign and decimal point. */
       return s_string;
    }
 }
@@ -227,8 +227,6 @@ char* s_mant(char* s_string, const double d_value, int i_width) {
    }
    if ((i_exponent < -99)) d_number = 0.;  /* Check for numeric underflow. */
    if ((i_exponent >= 99) && (d_number >= 10)) d_number = 9999999999.; /* Check for numeric overflow. */
-   sprintf(s_string, " %0*.0f  +", i_width, d_number);
+   sprintf(s_string, " %0*.0f  ", i_width, d_number);
    return s_string;
-}
-
-
+}  
