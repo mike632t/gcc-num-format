@@ -29,11 +29,13 @@
 #                      against that expected - MEJT
 #  18 Aug 13         - Now recompiles sources before verifying output - MEJT
 #  18 Dec 18			- Test data file name based on program name - MEJT
+#  21 Dec 18 			- Changed filetype used for test data (avoids confusing
+# 							  Github's language detection algorythm) - MEJT
 #
 PROGRAM = gcc-num-format
 SOURCE = $(PROGRAM).c
 OBJECT = $(SOURCE:.c=.o)
-OUTPUT = $(PROGRAM).t
+OUTPUT = $(PROGRAM).out
 FLAGS	= 
 LIBS	= -lm
 CC	= gcc
