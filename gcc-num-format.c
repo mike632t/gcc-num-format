@@ -58,8 +58,9 @@
  *                     workaround formatting issues with VAX C RTL) - MEJT
  * 25 Aug 13         - Test values now depend on display width - MEJT
  * 16 Dec 18         - Replaced local math functions with macros - MEJT
- * 20 Dec 19         - Fixed FIX formatting - MEJT
- *                   - Now compiles using VAXC - MEJT
+ * 20 Dec 18         - Fixed FIX formatting - MEJT
+ *                   - Tested compilation using VAXC - MEJT
+ * 21 Dec 18         - Removed extra spaces from output - MEJT
  *
  * TO DO :           - Test output for different display widths.
  *
@@ -83,7 +84,6 @@ char* s_format(char*, double, int, int, int);
 char* s_mant(char*, double, int);
 
 int main(int argc, char *argv[]) {
-
    const double d_test[] = {
       0.00,
       1.0e+100, /* Overflow. */
@@ -93,12 +93,11 @@ int main(int argc, char *argv[]) {
       2.0e-08, /* Fraction. */
       2.0 / -3.0, /* Recurring decimal value. */
       0.2, /* Recouring binary fraction. */
-      (48 - 47.8) - 0.2,
-      123456789.0,
-      -1.2e-19,
-      15,
-      2.831068713e4,
-      0.002};
+      0.002, /* Small fixed point number. */
+      123456789.0, /* Rounding and truncation. */
+      -1.2e-19, /* Small negative number */
+      2.831068713e4, /*Decimal number */
+      15}; 
 
    char s_string[WIDTH + 3]; /* Allowing for the sign, decimal point and terminator. */
    int i_count, i_test;
@@ -109,23 +108,18 @@ int main(int argc, char *argv[]) {
       
       /* FIX */
       for (i_count = 0; i_count <= 9; i_count++) {
-         fprintf(stdout, "%-+17.9e\t= %s   \t(FIX %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 0), i_count);
+         fprintf(stdout, "%-+15.9e\t= %s   \t(FIX %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 0), i_count);
       }
-      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_test[i_test], s_mant(s_string, d_test[i_test], WIDTH));   
-
       /* SCI */
       for (i_count = 0; i_count <= 9; i_count++) {
-         fprintf(stdout, "%-+17.9e\t= %s    \t(SCI %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 1), i_count);
+         fprintf(stdout, "%-+15.9e\t= %s   \t(SCI %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 1), i_count);
       }
-
-      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_test[i_test], s_mant(s_string, d_test[i_test], WIDTH));   
-      
       /* ENG */
       for (i_count = 0; i_count <= 9; i_count++) {
-         fprintf(stdout, "%-+17.9e\t= %s    \t(ENG %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 2), i_count);
+         fprintf(stdout, "%-+15.9e\t= %s   \t(ENG %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 2), i_count);
       }
 
-      fprintf(stdout, "%-+17.9e\t= %s\n\n",  d_test[i_test], s_mant(s_string, d_test[i_test], WIDTH));   
+      fprintf(stdout, "%-+15.9e\t= %s\n\n",  d_test[i_test], s_mant(s_string, d_test[i_test], WIDTH));   
    }
    exit(0);
 } 
@@ -227,6 +221,6 @@ char* s_mant(char* s_string, const double d_value, int i_width) {
    }
    if ((i_exponent < -99)) d_number = 0.;  /* Check for numeric underflow. */
    if ((i_exponent >= 99) && (d_number >= 10)) d_number = 9999999999.; /* Check for numeric overflow. */
-   sprintf(s_string, " %0*.0f  ", i_width, d_number);
+   sprintf(s_string, " %0*.0f", i_width, d_number);
    return s_string;
 }  
