@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
       123456789.0, /* Rounding and truncation. */
       -1.2e-19, /* Small negative number */
       2.831068713e4, /*Decimal number */
-      15}; 
+      15, -0.0699}; 
 
    char s_string[WIDTH + 3]; /* Allowing for the sign, decimal point and terminator. */
    int i_count, i_test;
@@ -141,7 +141,12 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
       d_number *= i_sign; /* Make number positive before formatting it and restore the sign at the end! */
       i_exponent = (int) ROUND(floor(log10(d_number))); /* Find exponent. */
 
+      //if (i_decimals <1) fprintf(stderr, "Debug\t: %s line : %d : Debug: (%fe%+-2d) %-+15.9e %-+15.9e %-+15.9e %-+15.9e\n",
+      //  __FILE__, __LINE__, d_number * i_sign, i_exponent, ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals) );
+
       if (i_mode > 0 || (ABS(i_exponent) > (i_width)) || ((i_decimals + i_exponent) < 0)) {
+      //if ((i_mode > 0 || ((i_decimals + i_exponent) < 0)) && (ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals) < 0.5)) {
+
          d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
 
          /* Round up the the desired number of decimal places. */
