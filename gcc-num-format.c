@@ -20,7 +20,7 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * 20 Jul 13   0.1   - Initial version - MEJT
- * 22 Jul 13         - Fixed  the truncation errors that were occouring when
+ * 22 Jul 13         - Fixed  the truncation errors that were occurring when
  *                     formatting  some  fractions by  rounding  the  number
  *                     before truncating it - MEJT
  *                   - Defined  trunc and round locally (not in all versions
@@ -30,7 +30,7 @@
  *                     adjusted at compile time - MEJT
  * 24 Jul 13         - Modified code to use sprinf() instead of asprinf() to
  *                     allow routines to compile using VAX C - MEJT
- * 25 Jul 13         - Added mant () to return the mantessa - MEJT
+ * 25 Jul 13         - Added mant () to return the mantissa - MEJT
  * 26 Jul 13         - Modified  eng()  and sci() to include spaces  between
  *                     the value and the exponent - MEJT
  *                   - Added sign function -MEJT
@@ -41,7 +41,7 @@
  * 17 Aug 13         - Added debug and warning macros - MEJT
  *                   - Combined sci() and eng() in format() - MEJT
  * 18 Aug 13         - Finally got format() working, fixed problems
- *                     with the mantessa when rounding up - MEJT
+ *                     with the mantissa when rounding up - MEJT
  *                   - Removed sci() and eng() - MEJT
  * 18 Aug 13         - Fixed fixed problem with mant() caused by rounding up
  *                     when truncating the number of digits - MEJT
@@ -66,7 +66,7 @@
  *
  */
 
-#define DEBUG 1       /* Can be DEBUG or RELEASE (or somthing else!). */
+#define DEBUG 1       /* Can be DEBUG or RELEASE (or something else!). */
 
 #define WIDTH          10
 
@@ -106,16 +106,13 @@ int main(int argc, char *argv[]) {
    
    for (i_test = i_start; i_test < i_limit; i_test++) {
       
-      /* FIX */
-      for (i_count = 0; i_count <= 9; i_count++) {
+      for (i_count = 0; i_count <= 9; i_count++) { /* Print test case in Fixed point format. */
          fprintf(stdout, "%-+15.9e\t= %s   \t(FIX %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 0), i_count);
       }
-      /* SCI */
-      for (i_count = 0; i_count <= 9; i_count++) {
+      for (i_count = 0; i_count <= 9; i_count++) { /* Print test case in Scientific format. */
          fprintf(stdout, "%-+15.9e\t= %s   \t(SCI %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 1), i_count);
       }
-      /* ENG */
-      for (i_count = 0; i_count <= 9; i_count++) {
+      for (i_count = 0; i_count <= 9; i_count++) { /* Print test case in Engineering format. */
          fprintf(stdout, "%-+15.9e\t= %s   \t(ENG %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 2), i_count);
       }
 
@@ -141,27 +138,20 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
       d_number *= i_sign; /* Make number positive before formatting it and restore the sign at the end! */
       i_exponent = (int) ROUND(floor(log10(d_number))); /* Find exponent. */
 
-      //if (i_decimals <1) fprintf(stderr, "Debug\t: %s line : %d : Debug: (%fe%+-2d) %-+15.9e %-+15.9e %-+15.9e %-+15.9e\n",
-      //  __FILE__, __LINE__, d_number * i_sign, i_exponent, ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals) );
+      if (i_mode > 0 || (ABS(i_exponent) > (i_width)) || ((i_decimals + i_exponent) < 0)) { /* Scientific (or Engineering) mode. */
 
-      if (i_mode > 0 || (ABS(i_exponent) > (i_width)) || ((i_decimals + i_exponent) < 0)) {
-      //if ((i_mode > 0 || ((i_decimals + i_exponent) < 0)) && (ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals) < 0.5)) {
+         d_number /= pow(10.0, i_exponent); /*  Find mantissa. */
+         d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); /* Round up the the desired number of decimal places. */
 
-         d_number /= pow(10.0, i_exponent); /*  Find mantessa. */
-
-         /* Round up the the desired number of decimal places. */
-         d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
          while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
 
-         /* Check for numeric underflow. */
-         if (i_exponent + (int) ROUND(floor(log10(d_number))) < -99) {
+         if (i_exponent + (int) ROUND(floor(log10(d_number))) < -99) { /* Check for numeric underflow. */
             debug(fprintf(stderr, "Debug\t: %s line : %d : Warning: Underflow   (%- fe%+-2d)\n",
               __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 0.0; i_exponent = 0; i_sign = 0;
          }
 
-         /* Adjust exponent for enginering mode. */
-         if (i_mode > 1) {
+         if (i_mode > 1) { /* Adjust exponent for Engineering mode. */
             i_digits += i_decimals;
             i_decimals -= i_exponent;
             if ((i_exponent / 3) * 3 - i_exponent != 0) {/* Is the exponent already a multiple of 3. */
@@ -173,8 +163,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
             d_number = ROUND(d_number * pow(10.0, i_digits - 1 + i_decimals))/ pow(10.0, i_decimals);
          }
 
-         /* Check for numeric overflow. */
-         if (i_exponent + (int) ROUND(floor(log10(d_number))) > 99) {
+         if (i_exponent + (int) ROUND(floor(log10(d_number))) > 99) { /* Check for numeric overflow. */
             while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
             debug(fprintf(stderr, "Debug\t: %s line : %d : Warning: Overflow   (%- fe%+-2d)\n",
               __FILE__, __LINE__, d_number * i_sign, i_exponent));
@@ -183,8 +172,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
          }
       }
       else {
-         /* Round up the the desired number of decimal places. */
-         if ((i_decimals + i_exponent) >= i_width) i_decimals = i_width - i_exponent -1;
+         if ((i_decimals + i_exponent) >= i_width) i_decimals = i_width - i_exponent -1; /* Round up the the desired number of decimal places. */
          d_number = ROUND(d_number * pow(10.0, i_decimals)) / pow(10.0, i_decimals); 
          i_exponent = (int) ROUND(floor(log10(d_number))); /* Find exponent again - it may have changed when the number was rounded up. */
          if (i_exponent > 0) i_digits += i_exponent;
@@ -193,7 +181,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
    }
    
    if (i_mode > 0 || (ABS(i_exponent) > (i_width)) || ((i_decimals + i_exponent) < 0)) { /* SCI or ENG format */
-      if (i_digits + i_decimals > i_width - 3){ /* Truncate mantessa if necessary. */
+      if (i_digits + i_decimals > i_width - 3){ /* Truncate mantissa if necessary. */
          d_number = TRUNC(d_number * pow(10.0, i_width - 3 - i_digits)) / pow(10.0, i_width - 3 - i_digits); /* Truncate. */
          i_decimals = i_width - 3 - i_digits; /* Adjust number of decimal places. */
       }
