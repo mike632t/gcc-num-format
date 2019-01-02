@@ -21,7 +21,11 @@
  *
  */
 
-#indef GIT_COMMIT_ID
+#ifndef GIT_COMMIT_ID
+#define GIT_COMMIT_ID "Unknown"
+#endif
+
+#ifndef GIT_COMMIT_ID
 #define GIT_COMMIT_ID $Format:%H$
 #define GIT_COMMIT_TIME $Format:%aI$
 #endif
