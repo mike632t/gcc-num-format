@@ -79,6 +79,7 @@
 
 #include "gcc-num-format.h" /* TRUNC(), etc. */
 #include "gcc-num-debug.h" /* debug(), warning(), etc. */
+#include "gcc-num-version.h"
 
 char* s_format(char*, double, int, int, int);
 char* s_mant(char*, double, int);
@@ -103,6 +104,8 @@ int main(int argc, char *argv[]) {
    int i_count, i_test;
    int i_start = 0;
    int i_limit = sizeof(d_test)/sizeof(d_test[0]);
+
+   debug(fprintf(stderr, "Debug \t: %s line : %d : Commit Id: %s\n", __FILE__, __LINE__, GIT_COMMIT_ID));
    
    for (i_test = i_start; i_test < i_limit; i_test++) {
       
