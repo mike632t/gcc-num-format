@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
    int i_start = 0;
    int i_limit = sizeof(d_test)/sizeof(d_test[0]);
 
-   debug(fprintf(stderr, "Debug \t: %s line : %d : Commit Id: %s\n", __FILE__, __LINE__, GIT_COMMIT_ID));
+   debug(fprintf(stderr, "Debug: %s line : %d : Commit Id: %s\n", __FILE__, __LINE__, GIT_COMMIT_ID));
    
    for (i_test = i_start; i_test < i_limit; i_test++) {
       
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
 char* s_format(char* s_string, double d_value, int i_width, int i_precision, int i_mode) {
 
 #undef DEBUG /* Disable debug code */
-#define DEBUG 0
+#define DEBUG 1
    
    double d_number = d_value;
    int i_sign, i_exponent, i_decimals, i_digits;
@@ -149,7 +149,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
          while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
 
          if (i_exponent + (int) ROUND(floor(log10(d_number))) < -99) { /* Check for numeric underflow. */
-            debug(fprintf(stderr, "Debug\t: %s line : %d : Warning: Underflow   (%- fe%+-2d)\n",
+            debug(fprintf(stderr, "Debug: %s line : %d : Warning: Underflow\t(%- fe%+-2d)\n",
               __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 0.0; i_exponent = 0; i_sign = 0;
          }
@@ -168,7 +168,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
 
          if (i_exponent + (int) ROUND(floor(log10(d_number))) > 99) { /* Check for numeric overflow. */
             while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
-            debug(fprintf(stderr, "Debug\t: %s line : %d : Warning: Overflow   (%- fe%+-2d)\n",
+            debug(fprintf(stderr, "Debug: %s line : %d : Warning: Overflow \t(%- fe%+-2d)\n",
               __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 9.999999999999999; i_exponent = 99;
             i_decimals = i_width - 1; i_digits = 1; /* Force all decimal places to be shown. */
