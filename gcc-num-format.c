@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
    int i_start = 0;
    int i_limit = sizeof(d_test)/sizeof(d_test[0]);
 
-   debug(fprintf(stderr, "Debug: %s line : %d : Commit Id: %s\n", __FILE__, __LINE__, GIT_COMMIT_ID));
+   debug(fprintf(stderr, "Debug: %s line : %d : Commit Id: %08x\n", __FILE__, __LINE__, GIT_COMMIT_ID));
    
    for (i_test = i_start; i_test < i_limit; i_test++) {
       
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
 char* s_format(char* s_string, double d_value, int i_width, int i_precision, int i_mode) {
 
 #undef DEBUG /* Disable debug code */
-#define DEBUG 1
+#define DEBUG 0
    
    double d_number = d_value;
    int i_sign, i_exponent, i_decimals, i_digits;

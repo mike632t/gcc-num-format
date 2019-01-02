@@ -22,7 +22,13 @@
  */
 
 #ifndef GIT_COMMIT_ID
-#define GIT_COMMIT_ID "Unknown"
+#define GIT_COMMIT_ID 0xacb5167
+/*
+ * 0fa5807e1dae435c129b9e94a09f89f6bff3775d
+ * 0fa5807e
+ * acb5167e94d6fc3dbcd5530f34dbd69e905d31f8
+ * acb5167
+ */
 #endif
 
 #ifndef GIT_COMMIT_ID
