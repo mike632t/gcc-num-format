@@ -20,8 +20,8 @@
  * 16 Dec 18         - Initial version - MEJT
  * 20 Dec 18         - Now compiles using VAXC - MEJT
  *
- * Note - Do NOT use operators live increment and decriment on values passed
- * to these macros the results will not be as intended!
+ * Note - Do NOT use increment and decriment operators with values passed to
+ * these macros or the results will not be as intended!
  */
 
 /* Truncate */
