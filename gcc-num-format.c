@@ -63,7 +63,8 @@
  * 21 Dec 18         - Removed extra spaces from output - MEJT
  * 08 Jan 19         - Added a new macro for warnings so they can be enabled
  *                     or disabled seperatly any debug messages - MEJT
- * 
+ *                   - Added an additional test case for rounding - MEJT
+ *                     
  * TO DO :           - Test output for different display widths.
  *
  */
@@ -72,9 +73,6 @@
 #define WARNING 0
 
 #define WIDTH          10
-
-#define MIN(a,b)       (((a)<(b))?(a):(b))
-#define MAX(a,b)       (((a)>(b))?(a):(b))
 
 #include <stdio.h>     /* fprintf(), etc. */
 #include <stdlib.h>    /* exit() */
@@ -96,21 +94,25 @@ int main(int argc, char *argv[]) {
       0.46 - pow(10, - WIDTH), /* Intermediate rounding. */
       2.0e-08, /* Fraction. */
       2.0 / -3.0, /* Recurring decimal value. */
+      2.0 / -30000, /* Recurring small decimal value. */
       0.2, /* Recouring binary fraction. */
       0.002, /* Small fixed point number. */
       123456789.0, /* Rounding and truncation. */
       -1.2e-19, /* Small negative number */
       2.831068713e4, /*Decimal number */
-      15, -0.0699}; 
+      15.0, 
+      -0.0699}; 
 
    char s_string[WIDTH + 3]; /* Allowing for the sign, decimal point and terminator. */
-   int i_count, i_test;
-   int i_start = 0;
-   int i_limit = sizeof(d_test)/sizeof(d_test[0]);
-
+   int i_count, i_test, i_start, i_finish, i_limit;
+   
+   i_limit = sizeof(d_test)/sizeof(d_test[0]);
+   i_start = 0;
+   i_finish = i_limit;
+   
    debug(fprintf(stderr, "Debug: %s line : %d : Commit Id: %08x\n", __FILE__, __LINE__, GIT_COMMIT_ID));
    
-   for (i_test = i_start; i_test < i_limit; i_test++) {
+   for (i_test = i_start; i_test < i_finish; i_test++) {
       
       for (i_count = 0; i_count <= 9; i_count++) { /* Print test case in Fixed point format. */
          fprintf(stdout, "%-+15.9e\t= %s   \t(FIX %d)\n",  d_test[i_test], s_format(s_string, d_test[i_test], WIDTH, i_count, 0), i_count);
