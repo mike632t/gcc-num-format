@@ -61,12 +61,15 @@
  * 20 Dec 18         - Fixed FIX formatting - MEJT
  *                   - Tested compilation using VAXC - MEJT
  * 21 Dec 18         - Removed extra spaces from output - MEJT
- *
+ * 08 Jan 19         - Added a new macro for warnings so they can be enabled
+ *                     or disabled seperatly any debug messages - MEJT
+ * 
  * TO DO :           - Test output for different display widths.
  *
  */
 
-#define DEBUG 1       /* Can be DEBUG or RELEASE (or something else!). */
+#define DEBUG 1
+#define WARNING 0
 
 #define WIDTH          10
 
@@ -127,7 +130,7 @@ int main(int argc, char *argv[]) {
 char* s_format(char* s_string, double d_value, int i_width, int i_precision, int i_mode) {
 
 #undef DEBUG /* Disable debug code */
-#define DEBUG 0
+#define DEBUG 1
    
    double d_number = d_value;
    int i_sign, i_exponent, i_decimals, i_digits;
@@ -140,6 +143,12 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
 
       d_number *= i_sign; /* Make number positive before formatting it and restore the sign at the end! */
       i_exponent = (int) ROUND(floor(log10(d_number))); /* Find exponent. */
+                  
+      debug(
+         if ((ROUND(d_number) > d_number) && i_precision < 1 && i_mode == 0)
+         fprintf(stderr, "Debug: %s line : %d : \n\tMantessa = %e, Rounded = %e, Delta = %e, Decimals = %d, Exponent = %d \n", 
+         __FILE__, __LINE__, d_number, ROUND(d_number), ROUND(d_number) - d_number, i_decimals, i_exponent)
+      );      
 
       if (i_mode > 0 || (ABS(i_exponent) > (i_width)) || ((i_decimals + i_exponent) < 0)) { /* Scientific (or Engineering) mode. */
 
@@ -149,7 +158,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
          while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
 
          if (i_exponent + (int) ROUND(floor(log10(d_number))) < -99) { /* Check for numeric underflow. */
-            debug(fprintf(stderr, "Debug: %s line : %d : Warning: Underflow\t(%- fe%+-2d)\n",
+            warning(fprintf(stderr, "Warning: %s line : %d : Warning: Underflow\t(%- fe%+-2d)\n",
               __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 0.0; i_exponent = 0; i_sign = 0;
          }
@@ -168,7 +177,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
 
          if (i_exponent + (int) ROUND(floor(log10(d_number))) > 99) { /* Check for numeric overflow. */
             while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
-            debug(fprintf(stderr, "Debug: %s line : %d : Warning: Overflow \t(%- fe%+-2d)\n",
+            warning(fprintf(stderr, "Warning: %s line : %d : Warning: Overflow \t(%- fe%+-2d)\n",
               __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 9.999999999999999; i_exponent = 99;
             i_decimals = i_width - 1; i_digits = 1; /* Force all decimal places to be shown. */
