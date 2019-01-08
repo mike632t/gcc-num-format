@@ -1,6 +1,6 @@
 /*
  *
- * gcc-num-version.h - Number macros.
+ * gcc-num-version.h - Define vesion number.
  *
  * Copyright(C) 2018   MEJT
  *
@@ -17,7 +17,7 @@
  * You  should have received a copy of the GNU General Public License  along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * 02 Jan 18         - Initial version - MEJT
+ * 02 Jan 19         - Initial version - MEJT
  *
  */
 
@@ -32,6 +32,6 @@
 #endif
 
 #ifndef GIT_COMMIT_ID
-#define GIT_COMMIT_ID $Format:%H$
+#define GIT_COMMIT_ID $Format:%h$
 #define GIT_COMMIT_TIME $Format:%aI$
 #endif
