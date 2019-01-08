@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
    i_start = 0;
    i_finish = i_limit;
    
-   debug(fprintf(stderr, "Debug: %s line : %d : Commit Id: %08x\n", __FILE__, __LINE__, GIT_COMMIT_ID));
+   debug(fprintf(stderr, "Debug: %s line: %d - Commit Id: %08x\n", __FILE__, __LINE__, GIT_COMMIT_ID));
    
    for (i_test = i_start; i_test < i_finish; i_test++) {
       
@@ -148,7 +148,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
                   
       debug(
          if ((ROUND(d_number) > d_number) && i_precision < 1 && i_mode == 0)
-         fprintf(stderr, "Debug: %s line : %d : \n\tMantessa = %e, Rounded = %e, Delta = %e, Decimals = %d, Exponent = %d \n", 
+         fprintf(stderr, "Debug: %s line: %d - \n\tMantessa = %e, Rounded = %e, Delta = %e, Decimals = %d, Exponent = %d \n", 
          __FILE__, __LINE__, d_number, ROUND(d_number), ROUND(d_number) - d_number, i_decimals, i_exponent)
       );      
 
@@ -160,7 +160,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
          while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
 
          if (i_exponent + (int) ROUND(floor(log10(d_number))) < -99) { /* Check for numeric underflow. */
-            warning(fprintf(stderr, "Warning: %s line : %d : Warning: Underflow\t(%- fe%+-2d)\n",
+            warning(fprintf(stderr, "Warning: %s line: %d - Underflow\t(%- fe%+-2d)\n",
               __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 0.0; i_exponent = 0; i_sign = 0;
          }
@@ -179,7 +179,7 @@ char* s_format(char* s_string, double d_value, int i_width, int i_precision, int
 
          if (i_exponent + (int) ROUND(floor(log10(d_number))) > 99) { /* Check for numeric overflow. */
             while (d_number >= 10.0) {d_number /= 10.0; i_exponent++;} /* Fix up value if necessary. */
-            warning(fprintf(stderr, "Warning: %s line : %d : Warning: Overflow \t(%- fe%+-2d)\n",
+            warning(fprintf(stderr, "Warning: %s line: %d - Overflow \t(%- fe%+-2d)\n",
               __FILE__, __LINE__, d_number * i_sign, i_exponent));
             d_number = 9.999999999999999; i_exponent = 99;
             i_decimals = i_width - 1; i_digits = 1; /* Force all decimal places to be shown. */
