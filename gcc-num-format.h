@@ -19,36 +19,36 @@
  *
  * 16 Dec 18         - Initial version - MEJT
  * 20 Dec 18         - Now compiles using VAXC - MEJT
+ * 08 Jan 19         - Added swap - MEJT
  *
  * Note - Do NOT use increment and decriment operators with values passed to
  * these macros or the results will not be as intended!
  */
 
-/* Truncate */
-#ifndef TRUNC /* Don't redefine macro if already defined. */
+#ifndef TRUNC
 #define TRUNC(x) ((x > 0) ? floor(x) : ceil(x))
 #endif
 
-/* Round - problems with floating point rounding errors.. */
-#ifndef ROUND /* Don't redefine macro if already defined. */
-#define ROUND(x) ((x >= 0) ? TRUNC(x + 0.5) : TRUNC(x - 0.5))
+#ifndef ROUND
+#define ROUND(x) ((x >= 0) ? TRUNC(x + 0.5) : TRUNC(x - 0.5)) /* Note problems with floating point rounding errors.. */
 #endif
 
-/* Sign */
-#ifndef SIGN /* Don't redefine macro if already defined. */
+#ifndef SIGN
 #define SIGN(x) ((( x > 0 ) - ( x < 0 )))
 #endif
 
-/* Min */
-#ifndef MIN /* Don't redefine macro if already defined. */
+#ifndef MIN
 #define MIN(x, y) ((x < y) ? x : y)
 #endif
 
-/* Max */
-#ifndef MAX /* Don't redefine macro if already defined. */
+#ifndef MAX
 #define MAX(x, y) ((x >= y) ? x : y)
 #endif
 
-#ifndef ABS /* Don't redefine macro if already defined. */
+#ifndef ABS
 #define ABS(x) (((x) < 0) ? -(x) : (x))
+#endif
+
+#ifndef SWAP
+#define SWAP(x, y)({x ^= y; y ^= x; x ^= y;})
 #endif
